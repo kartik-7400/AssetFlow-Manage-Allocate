@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: assetflow-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - assetflow-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: assetflow-backend
+    command: npm run dev
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb://mongodb:27017/assetflow
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+    networks:
+      - assetflow-network
+
+volumes:
+  mongo_data:
+
+networks:
+  assetflow-network:
+    driver: bridge
