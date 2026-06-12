@@ -139,12 +139,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ token })
   // Pending bookings
   const pendingBookings = useMemo(() => bookings.filter((b) => b.status === 'PENDING'), [bookings])
 
-  // Approved bookings (not yet issued)
-  const approvedBookings = useMemo(
-    () => bookings.filter((b) => b.status === 'APPROVED'),
-    [bookings],
-  )
-
   // Total inventory
   const totalInventory = useMemo(
     () => assets.reduce((sum, a) => sum + a.quantityTotal, 0),
