@@ -26,15 +26,37 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
   try {
     const clerkId = req.auth.userId;
-    const user = await User.findOne({ clerkId });
+    let user = await User.findOne({ clerkId });
 
     if (!user) {
-      // User has a valid Clerk session but isn't sync'd to local DB yet.
-      // We return 401 with a specific message to indicate webhook latency/sync failure.
-      res.status(401).json({
-        error: 'User profile not synchronized in local database yet. Please retry shortly.',
-      });
-      return;
+      // Create/sync user on first authenticated request
+      // Ignore mock users from seed data to determine if this is the first real user
+      const realUserCount = await User.countDocuments({ clerkId: { $not: /^mock_/ } });
+      const role = realUserCount === 0 ? 'ADMINISTRATOR' : 'CONSUMER';
+
+      try {
+        const { clerkClient } = await import('@clerk/express');
+        const clerkUser = await clerkClient.users.getUser(clerkId);
+        user = await User.create({
+          clerkId,
+          email: clerkUser.emailAddresses?.[0]?.emailAddress || `clerk_${clerkId}@example.com`,
+          firstName: clerkUser.firstName || 'Clerk',
+          lastName: clerkUser.lastName || 'User',
+          imageUrl: clerkUser.imageUrl || '',
+          role,
+        });
+        console.log(`[Auth Provisioning] Auto-provisioned profile for Clerk User: ${user.email} (Role: ${role})`);
+      } catch (clerkErr: any) {
+        console.warn('[Auth Provisioning] Clerk API fetch failed, falling back to placeholder profile:', clerkErr.message);
+        user = await User.create({
+          clerkId,
+          email: `clerk_${clerkId}@example.com`,
+          firstName: 'Clerk',
+          lastName: 'User',
+          imageUrl: '',
+          role,
+        });
+      }
     }
 
     req.user = user;

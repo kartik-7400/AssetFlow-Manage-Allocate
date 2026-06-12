@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
-// Load environment variables from .env
-dotenv.config();
-
+import 'dotenv/config';
 import http from 'http';
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
@@ -35,11 +32,16 @@ io.on('connection', (socket) => {
 });
 
 // Connect to MongoDB
-console.log('[Database] Connecting to MongoDB...');
+const isMockMode = !process.env.CLERK_PUBLISHABLE_KEY;
+const dbName = isMockMode 
+  ? (process.env.DB_TEST_NAME || 'test') 
+  : (process.env.DB_NAME || 'AssetFlow');
+
+console.log(`[Database] Connecting to MongoDB (${isMockMode ? 'Mock/Sandbox' : 'Actual'} mode, DB: ${dbName})...`);
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGO_URI, { dbName })
   .then(() => {
-    console.log('[Database] Connected successfully to MongoDB.');
+    console.log(`[Database] Connected successfully to database: ${dbName}`);
 
     // Start HTTP Server
     server.listen(PORT, () => {

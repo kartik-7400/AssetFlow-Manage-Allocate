@@ -5,8 +5,9 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "NODE_ENV=development nodemon --watch src -e ts,js,json --exec node --loader ts-node/esm src/server.ts",
     "build": "rimraf dist && tsc",
+    "seed": "tsc && node dist/seed.js",
     "start": "node dist/server.js"
   },
   "dependencies": {
