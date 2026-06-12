@@ -99,18 +99,30 @@ export interface SystemNotification {
   createdAt: string
 }
 
-const BASE_URL = '/api'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || ''
+const BASE_URL = `${BACKEND_URL}/api`
+
+let tokenResolver: (() => Promise<string | null>) | null = null
 
 /**
  * Get HTTP Headers including Clerk or Mock Auth headers.
  */
-function getHeaders(token?: string | null): HeadersInit {
+async function getHeaders(token?: string | null): Promise<HeadersInit> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+  let resolvedToken = token
+  if (tokenResolver) {
+    try {
+      resolvedToken = await tokenResolver()
+    } catch (err) {
+      console.error('Failed to resolve dynamic token:', err)
+    }
+  }
+
+  if (resolvedToken) {
+    headers['Authorization'] = `Bearer ${resolvedToken}`
   } else {
     // Check local storage for mock developer auth
     const mockClerkId = localStorage.getItem('assetflow_mock_clerk_id')
@@ -147,11 +159,15 @@ async function handleResponse(response: Response) {
 }
 
 export const api = {
+  setTokenResolver: (resolver: () => Promise<string | null>) => {
+    tokenResolver = resolver
+  },
+
   // --- USER PROFILE ---
   getCurrentUser: async (token?: string | null): Promise<UserProfile> => {
     const res = await fetch(`${BASE_URL}/users/me`, {
       method: 'GET',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },
@@ -177,7 +193,7 @@ export const api = {
     }
     const res = await fetch(`${BASE_URL}/assets?${params.toString()}`, {
       method: 'GET',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },
@@ -185,7 +201,7 @@ export const api = {
   createAsset: async (data: Partial<Asset>, token?: string | null): Promise<Asset> => {
     const res = await fetch(`${BASE_URL}/assets`, {
       method: 'POST',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify(data),
     })
     return handleResponse(res)
@@ -194,7 +210,7 @@ export const api = {
   updateAsset: async (id: string, data: Partial<Asset>, token?: string | null): Promise<Asset> => {
     const res = await fetch(`${BASE_URL}/assets/${id}`, {
       method: 'PUT',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify(data),
     })
     return handleResponse(res)
@@ -206,7 +222,7 @@ export const api = {
   ): Promise<{ message: string; asset: Asset }> => {
     const res = await fetch(`${BASE_URL}/assets/${id}`, {
       method: 'DELETE',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },
@@ -226,7 +242,7 @@ export const api = {
     }
     const res = await fetch(`${BASE_URL}/bookings?${params.toString()}`, {
       method: 'GET',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },
@@ -243,7 +259,7 @@ export const api = {
   ): Promise<Booking> => {
     const res = await fetch(`${BASE_URL}/bookings`, {
       method: 'POST',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify(data),
     })
     return handleResponse(res)
@@ -260,7 +276,7 @@ export const api = {
   ): Promise<Booking> => {
     const res = await fetch(`${BASE_URL}/bookings/${id}/status`, {
       method: 'PATCH',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify(data),
     })
     return handleResponse(res)
@@ -273,7 +289,7 @@ export const api = {
   ): Promise<Booking> => {
     const res = await fetch(`${BASE_URL}/bookings/${id}/issue`, {
       method: 'POST',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify({ notes }),
     })
     return handleResponse(res)
@@ -289,7 +305,7 @@ export const api = {
   ): Promise<Booking> => {
     const res = await fetch(`${BASE_URL}/bookings/${id}/return`, {
       method: 'POST',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify(data),
     })
     return handleResponse(res)
@@ -298,7 +314,7 @@ export const api = {
   sendOverdueAlert: async (id: string, token?: string | null): Promise<{ message: string }> => {
     const res = await fetch(`${BASE_URL}/bookings/${id}/overdue-alert`, {
       method: 'POST',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },
@@ -307,7 +323,7 @@ export const api = {
   getMaintenanceTickets: async (token?: string | null): Promise<MaintenanceTicket[]> => {
     const res = await fetch(`${BASE_URL}/maintenance`, {
       method: 'GET',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },
@@ -319,7 +335,7 @@ export const api = {
   ): Promise<MaintenanceTicket> => {
     const res = await fetch(`${BASE_URL}/maintenance/${id}/resolve`, {
       method: 'POST',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
       body: JSON.stringify(data),
     })
     return handleResponse(res)
@@ -329,7 +345,7 @@ export const api = {
   getAuditLogs: async (token?: string | null): Promise<AuditLog[]> => {
     const res = await fetch(`${BASE_URL}/audit`, {
       method: 'GET',
-      headers: getHeaders(token),
+      headers: await getHeaders(token),
     })
     return handleResponse(res)
   },

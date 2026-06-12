@@ -5,6 +5,7 @@ web_modules/
 
 # Build outputs
 dist/
+dist-ssr/
 build/
 .tsbuildinfo
 
@@ -15,6 +16,7 @@ build/
 .env.development
 .env.production
 .env.test
+*.local
 
 # Logs
 npm-debug.log*

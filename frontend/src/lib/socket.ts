@@ -8,7 +8,8 @@ let socket: Socket | null = null
  */
 export function getSocket(): Socket {
   if (!socket) {
-    socket = io({
+    const url = import.meta.env.VITE_BACKEND_URL || undefined
+    socket = io(url, {
       autoConnect: false,
       transports: ['websocket', 'polling'],
     })
