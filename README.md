@@ -1,227 +1,217 @@
-# AssetFlow - Smart Asset Management & Resource Allocation Platform
+# AssetFlow — Smart Asset Management & Resource Allocation Platform
 
-## Overview
+AssetFlow is a full-stack web application that helps organizations efficiently track, manage, and allocate shared resources. It replaces spreadsheets and manual records with a centralized platform featuring inventory management, asset booking with approval workflows, real-time notifications, and operational analytics.
 
-AssetFlow is a full-stack asset management platform designed to help organizations efficiently track, manage, and allocate shared resources.
-
-Many institutions still rely on spreadsheets, manual records, and informal communication channels to manage assets. This often leads to resource conflicts, poor visibility, delayed returns, and underutilized inventory.
-
-AssetFlow provides a centralized solution that simplifies inventory management, asset booking, approval workflows, resource allocation, and operational analytics through an intuitive web-based interface.
-
-The platform is inspired by real-world resource management challenges such as those faced by university cultural councils, event management teams, and organizations that frequently share equipment across multiple users and departments.
+Built to solve real-world resource management challenges — such as those faced by university cultural councils, event teams, and organizations sharing equipment across departments — AssetFlow provides complete visibility and accountability throughout the asset lifecycle.
 
 ---
 
-## Problem Statement
+## Technology Stack
 
-Organizations often manage a large pool of shared resources such as:
-
-* DSLR Cameras
-* Studio Lighting Equipment
-* Audio Systems
-* Recording Equipment
-* Costumes
-* Stage Props
-* Event Infrastructure
-
-Managing these resources manually becomes increasingly difficult as the inventory grows.
-
-AssetFlow addresses this challenge by providing:
-
-* Centralized inventory tracking
-* Resource booking and allocation
-* Approval workflows
-* Asset issue and return management
-* Utilization monitoring
-* Data-driven operational insights
+| Layer              | Technology                                                     |
+| ------------------ | -------------------------------------------------------------- |
+| **Frontend**       | React 19, TypeScript, Vite                                     |
+| **Styling**        | Tailwind CSS 4, shadcn/ui, Lucide Icons, tw-animate-css        |
+| **Charting**       | Recharts                                                       |
+| **Routing**        | React Router DOM v7                                            |
+| **Authentication** | Clerk (React SDK + Express middleware)                         |
+| **Backend**        | Node.js, Express.js, TypeScript (ESM)                          |
+| **Database**       | MongoDB with Mongoose ODM                                      |
+| **Realtime**       | Socket.IO                                                      |
+| **QR Scanning**    | html5-qrcode, qrcode.react                                     |
+| **Code Quality**   | ESLint, Prettier, Husky, lint-staged                           |
 
 ---
 
-## Key Features
+## Setup Instructions
+
+### Prerequisites
+
+- **Node.js** ≥ 20.0.0
+- **npm** (comes with Node.js)
+- **MongoDB** — local instance or a cloud-hosted URI (e.g., MongoDB Atlas)
+- **Clerk Account** — for authentication keys ([clerk.com](https://clerk.com))
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/kartik-7400/AssetFlow-Manage-Allocate.git
+cd AssetFlow-Manage-Allocate
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file (use `.env.example` as reference):
+
+```env
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+
+CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+MONGO_URI=mongodb://localhost:27017
+DB_NAME=AssetFlow
+DB_TEST_NAME=test
+```
+
+### 3. Frontend Setup
+
+```bash
+cd ../frontend
+npm install
+```
+
+Create a `.env` file (use `.env.example` as reference):
+
+```env
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+VITE_BACKEND_URL=http://localhost:3000
+```
+
+### 4. Seed the Database *(optional)*
+
+Pre-populate the database with sample assets and data:
+
+```bash
+cd ../backend
+npm run seed
+```
+
+---
+
+## Running the Application
+
+### Local Development
+
+Start both the backend and frontend dev servers in separate terminals:
+
+**Terminal 1 — Backend:**
+
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 — Frontend:**
+
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend will be available at **http://localhost:5173** and the backend API at **http://localhost:3000**.
+
+### Production Build
+
+```bash
+# Backend
+cd backend
+npm run build
+npm start
+
+# Frontend
+cd frontend
+npm run build
+npm run preview
+```
+
+---
+
+## Feature List
 
 ### Authentication & Authorization
+- OAuth-based sign-in/sign-up via Clerk
+- Role-based access control (Admin / User)
+- Protected routes with secure session management
 
-* OAuth-based authentication
-* Secure user registration and login
-* Role-based access control
-* Protected routes and secure sessions
+### Inventory Management *(Admin)*
+- Full CRUD operations on assets (create, read, update, delete)
+- Categorize assets and manage available quantities
+- Track asset status and condition
 
-### Inventory Management
+### Asset Catalog & Booking *(User)*
+- Browse, search, and filter available assets
+- Check real-time availability
+- Request assets for specific durations
+- Automatic prevention of overbooking
 
-Administrators can:
+### Approval Workflow *(Admin)*
+- Review, approve, or reject incoming booking requests
+- View all active allocations
+- Users can monitor request status in real time
 
-* Add new assets
-* Edit asset information
-* Delete assets
-* Categorize inventory
-* Manage available quantities
-* Monitor asset status
-
-Each asset contains:
-
-* Asset Name
-* Category
-* Description
-* Available Quantity
-* Status
-
-### Asset Discovery & Booking
-
-Users can:
-
-* Browse available assets
-* Search and filter inventory
-* Check asset availability
-* Request assets for specific durations
-* Track booking requests
-
-The system automatically prevents bookings that exceed available inventory.
-
-### Approval Workflow
-
-Administrators can:
-
-* Review booking requests
-* Approve requests
-* Reject requests
-* View active allocations
-
-Users can monitor request status in real time.
-
-### Asset Issue & Return Management
-
-* Asset issuance tracking
-* Return management
-* Due date monitoring
-* Inventory updates
-* Status synchronization
+### Asset Issue & Return
+- Track asset issuance and returns
+- Due date monitoring
+- Automatic inventory synchronization on return
 
 ### Analytics Dashboard
-
-Interactive dashboards provide insights into:
-
-* Most utilized assets
-* Asset utilization rates
-* Active bookings
-* Available inventory
-* Overdue returns
-
-Visualizations include:
-
-* Bar Charts
-* Pie Charts
-* Line Graphs
-* Summary Statistics Cards
-
-### Borrowing History
-
-Users can:
-
-* View current bookings
-* Track past requests
-* Access borrowing history
-
-Administrators can view organization-wide activity records.
-
----
-
-## Optional Enhancements
-
-### Notification System
-
-* Booking approval notifications
-* Booking rejection notifications
-* Return reminders
-* Overdue asset alerts
-
-### Audit Logs
-
-Track critical system activities:
-
-* Asset creation
-* Inventory updates
-* Booking approvals
-* Asset returns
+- Interactive charts and summary cards powered by Recharts
+- Insights into most-utilized assets, utilization rates, active bookings, available inventory, and overdue returns
+- Visualizations include bar charts, line graphs
 
 ### QR Code Asset Tracking
+- Generate QR codes for each asset
+- Scan QR codes during issue and return for instant lookup
+- Built with html5-qrcode and qrcode.react
 
-* Generate QR codes for assets
-* Scan assets during issue and return
-* Instant asset information lookup
+### Real-Time Notifications
+- Live updates via Socket.IO
+- Booking approval/rejection alerts
+- Return reminders and overdue notifications
 
-### Asset Health Monitoring
+### Audit Logs *(Admin)*
+- Track system-critical activities: asset creation, inventory updates, booking approvals, asset returns
 
-Track:
+### Maintenance Tracking
+- Record and monitor asset condition
+- Maintenance logs and damage reports
 
-* Asset condition
-* Maintenance records
-* Damage reports
+### Borrowing History
+- Users can view current bookings and full borrowing history
+- Admins can access organization-wide activity records
 
-### Docker Support
-
-* Dockerized development environment
-* Docker Compose setup
-* Simplified deployment process
-
----
-
-## Tech Stack
-
-### Frontend
-
-* React.js
-* Tailwind CSS
-* React Router
-* Axios
-* Recharts / Chart.js
-
-### Backend
-
-* Node.js
-* Express.js
-
-### Database
-
-* MongoDB
-* Mongoose ODM
-
-### Authentication
-
-* OAuth 2.0
-* JWT
-
-### Deployment
-
-* Docker
-* Docker Compose
+### Code Quality
+- ESLint + Prettier with auto-formatting
+- Pre-commit hooks via Husky and lint-staged
 
 ---
 
-## System Roles
+## Project Structure
 
-### User
-
-* Browse assets
-* Request bookings
-* Track requests
-* View borrowing history
-* Return allocated assets
-
-### Administrator
-
-* Manage inventory
-* Approve or reject bookings
-* Issue and receive assets
-* Monitor utilization
-* Access analytics dashboard
+```
+AssetFlow-Manage-Allocate/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/      # Route handlers
+│   │   ├── middlewares/       # Auth & request middleware
+│   │   ├── models/            # Mongoose schemas (Asset, Booking, User, AuditLog, Notification, Maintenance)
+│   │   ├── routes/            # Express route definitions
+│   │   ├── services/          # Business logic layer
+│   │   ├── app.ts             # Express app configuration
+│   │   ├── server.ts          # Server entry point
+│   │   └── seed.ts            # Database seeder
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/        # Reusable UI components
+│   │   ├── pages/             # Page-level views
+│   │   ├── lib/               # Utilities and helpers
+│   │   ├── App.tsx            # Root component with routing
+│   │   └── main.tsx           # Application entry point
+│   ├── vite.config.ts
+│   └── package.json
+└── README.md
+```
 
 ---
 
-## Project Goals
-
-* Improve inventory visibility
-* Reduce booking conflicts
-* Streamline resource allocation
-* Increase asset utilization
-* Maintain accountability throughout the asset lifecycle
-* Provide actionable operational insights
