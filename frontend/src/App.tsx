@@ -12,6 +12,7 @@ import InventoryCRUD from './pages/InventoryCRUD'
 import QRScannerPage from './pages/QRScannerPage'
 import MaintenanceLog from './pages/MaintenanceLog'
 import AuditLogViewer from './pages/AuditLogViewer'
+import AnalyticsDashboard from './pages/AnalyticsDashboard'
 
 import { api } from './lib/api'
 import type { UserProfile } from './lib/api'
@@ -107,6 +108,14 @@ function AppLayout({
               </AdminRouteGuard>
             }
           />
+          <Route
+            path="/admin/analytics"
+            element={
+              <AdminRouteGuard userProfile={userProfile} loadingProfile={loadingProfile}>
+                <AnalyticsDashboard token={clerkToken} />
+              </AdminRouteGuard>
+            }
+          />
 
           {/* Fallback redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -125,6 +134,12 @@ function ClerkAppContent() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loadingProfile, setLoadingProfile] = useState(true)
   const [clerkToken, setClerkToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isLoaded && userId) {
+      api.setTokenResolver(getToken)
+    }
+  }, [isLoaded, userId, getToken])
 
   const syncProfile = async () => {
     setLoadingProfile(true)

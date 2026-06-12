@@ -12,6 +12,7 @@ import {
   QrCode,
   Wrench,
   FileClock,
+  BarChart3,
   Menu,
   X,
   Check,
@@ -275,6 +276,12 @@ export const Layout: React.FC<LayoutProps> = ({
       label: 'Audit Log',
       path: '/admin/audit',
       icon: FileClock,
+      roles: ['ADMINISTRATOR'],
+    },
+    {
+      label: 'Analytics',
+      path: '/admin/analytics',
+      icon: BarChart3,
       roles: ['ADMINISTRATOR'],
     },
   ]
